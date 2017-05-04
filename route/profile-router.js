@@ -6,8 +6,8 @@ const Router = require('express').Router;
 const jsonParser = require('body-parser').json();
 
 const bearerAuth = require('../lib/bearer-auth-middleware.js');
-const Profile = require('../lib/model/profile.js');
-const User = require('../lib/model/user.js');
+const Profile = require('../model/profile.js');
+const User = require('../model/user.js');
 // const Character = require('../lib/model/character.js');
 // const Dm = require('../lib/model/dm.js');
 
@@ -15,8 +15,8 @@ const profileRouter = module.exports = Router();
 
 profileRouter.post('/api/profile', bearerAuth, jsonParser, function(req, res, next) {
   debug('POST: /api/profile');
-
-  if(!req.body) return next(createError(400, 'request body expected'));
+  console.log(req.body);
+  if (!req._body) return next(createError(400, 'request body expected'));
   req.body.userID = req.user._id;
   new Profile(req.body).save()
   .then( profile => res.json(profile))
@@ -41,7 +41,7 @@ profileRouter.put('/api/profile/:id', bearerAuth, jsonParser, function(req, res,
   .catch(next);
 });
 
-Profile.delete('/api/profile/:id', bearerAuth, function(req, res, next) {
+profileRouter.delete('/api/profile/:id', bearerAuth, function(req, res, next) {
   debug('DELETE: /api/profile/:id');
 
   Profile.remove({ userID:req.user._id })

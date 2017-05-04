@@ -13,7 +13,7 @@ const errors = require('./lib/error-middleware.js');
 const authRouter = require('./route/auth-router.js');
 // const characterRouter = require('./route/character-router.js');
 // const dmRouter = require('./route/dm-router.js');
-// const profileRouter = require('./route/profile-router.js');
+const profileRouter = require('./route/profile-router.js');
 
 dotenv.load();
 
@@ -25,7 +25,7 @@ mongoose.connect(process.env.MONGODB_URI);
 app.use(cors());
 app.use(morgan('dev'));
 app.use(authRouter);
-// app.use(profileRouter);
+app.use(profileRouter);
 // app.use(characterRouter);
 // app.use(dmRouter);
 app.use(errors);

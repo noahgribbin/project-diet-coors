@@ -34,8 +34,6 @@ userSchema.methods.comparePasswordHash = function(password) {
 
   return new Promise((resolve, reject) => {
     bcrypt.compare(password, this.password, (err, valid) => {
-      console.log('||||||||||||||||||PASSWORD:', password);
-      console.log('//////////////////THIS.PASSWORD', this.password);
       if(err) return reject(err);
       if(!valid) return reject(createError(401, 'Wrong password!'));
       resolve(this);
@@ -52,7 +50,9 @@ userSchema.methods.generateFindHash = function() {
     function _generateFindHash() {
       this.findHash = crypto.randomBytes(32).toString('hex');
       this.save()
-      .then( () => resolve(this.findHash))
+      .then( () => {
+        resolve(this.findHash);
+      })
       .catch( err => {
         if(tries > 3) return reject(err);
         tries++;
@@ -66,6 +66,7 @@ userSchema.methods.generateToken = function() {
   debug('generateToken');
 
   return new Promise((resolve, reject) => {
+    // console.log('||||||||||||||', this);
     this.generateFindHash()
     .then( findHash => {
       resolve( jwt.sign( {token: findHash}, process.env.APP_SECRET));
