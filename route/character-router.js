@@ -7,7 +7,7 @@ const Router = require('express').Router;
 
 const bearerAuth = require('../lib/bearer-auth-middleware.js');
 const Character = require('../model/character.js');
-const Dm = require('../model/Dm');
+// const Dm = require('../model/Dm');
 const Profile = require('../modle/profile.js');
 
 const characterRouter = module.exports = Router();
