@@ -6,8 +6,8 @@ const jsonParser = require('body-parser').json();
 const Router = require('express').Router;
 
 const bearerAuth = require('../lib/bearer-auth-middleware.js');
-const Profile = require('../model/profile.js');
 const Dm = require('../model/dm.js');
+const Profile = require('../model/profile.js');
 
 const dmRouter = module.exports = Router();
 
@@ -77,7 +77,7 @@ dmRouter.put('/api/dm/:id', bearerAuth, jsonParser, function(req, res, next) {
 });
 
 dmRouter.delete('/api/dm/:id', bearerAuth, function(req, res, next) {
-  debug('DELETE: /api/recipe/:id');
+  debug('DELETE: /api/dm/:id');
 
   Profile.findOne( {userID: req.user._id} )
   .then( profile => {
