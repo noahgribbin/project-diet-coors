@@ -60,7 +60,6 @@ characterRouter.get('api/mycharacters/:profileID', function(req, res, next) {
 
 characterRouter.put('/api/character/:id', bearerAuth, jsonParser, function(req, res, next) {
   debug('PUT: /api/character/:id');
-  console.log('|||||||||||||||||||||||||', req._body);
   if( req._body !== true) return next(createError(400, 'nothing to update'));
   Character.findByIdAndUpdate(req.params.id, req.body, { new: true })
   .then( character => {

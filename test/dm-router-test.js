@@ -115,8 +115,9 @@ describe('Dm Routes', () => {
       new Dm(exampleDm).save()
       .then( dm => {
         this.tempDm = dm;
-        console.log();
-        console.log(this.tempDm._id);
+        console.log('tmepDM: ', this.tempDm);
+        console.log('DM: ', dm);
+        console.log('tempDM ID: ', this.tempDm._id);
         done();
       })
       .catch(done);
@@ -135,7 +136,10 @@ describe('Dm Routes', () => {
       it('should return a dm', done => {
         request.get(`${url}/api/dm/${this.tempDm._id}`)
         .end((err, res) => {
-          if(err) return done(err);
+          if(err) {
+            console.log('fuck you fuck lololololol');
+            return done(err);
+          }
           expect(res.status).to.equal(200);
           done();
         });

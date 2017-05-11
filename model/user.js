@@ -66,7 +66,6 @@ userSchema.methods.generateToken = function() {
   debug('generateToken');
 
   return new Promise((resolve, reject) => {
-    // console.log('||||||||||||||', this);
     this.generateFindHash()
     .then( findHash => {
       resolve( jwt.sign( {token: findHash}, process.env.APP_SECRET));

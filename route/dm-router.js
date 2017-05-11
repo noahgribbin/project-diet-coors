@@ -67,7 +67,6 @@ dmRouter.get('/api/alldms', function(req, res, next) {
 
 dmRouter.put('/api/dm/:id', bearerAuth, jsonParser, function(req, res, next) {
   debug('PUT: /api/dm/:id');
-  console.log('||||||||||||||||||||||||||', req._body);
   if (req._body !== true) return next(createError(400, 'nothing to update'));
   Dm.findByIdAndUpdate(req.params.id, req.body, { new: true })
   .then( dm => {
