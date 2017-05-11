@@ -11,7 +11,7 @@ const Promise = require('bluebird');
 const errors = require('./lib/error-middleware.js');
 
 const authRouter = require('./route/auth-router.js');
-// const characterRouter = require('./route/character-router.js');
+const characterRouter = require('./route/character-router.js');
 const dmRouter = require('./route/dm-router.js');
 const profileRouter = require('./route/profile-router.js');
 
@@ -26,7 +26,7 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(authRouter);
 app.use(profileRouter);
-// app.use(characterRouter);
+app.use(characterRouter);
 app.use(dmRouter);
 app.use(errors);
 

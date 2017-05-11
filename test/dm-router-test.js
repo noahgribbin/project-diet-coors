@@ -166,7 +166,7 @@ describe('Dm Routes', () => {
       .catch(done);
     });
 
-    describe('with a vaild profile id', () => {
+    describe('with a valid profile id', () => {
       it('should return a list of dms', done => {
         request.get(`${url}/api/mydms/${this.tempProfile._id.toString()}`)
         .set({ Authorization: `Bearer ${this.tempToken}` })
@@ -287,7 +287,7 @@ describe('Dm Routes', () => {
     });
   });
 
-  describe('PUT /api/dm/:id', () => {
+  describe('DELETE /api/dm/:id', () => {
     beforeEach( done => {
       exampleDm.profileID = this.tempProfile._id;
       new Dm(exampleDm).save()
@@ -315,14 +315,15 @@ describe('Dm Routes', () => {
         .end((err, res) => {
           expect(res.status).to.equal(204);
           Profile.findById(this.tempProfile._id)
-        .then( profile => {
-          expect(profile.dms.indexOf(this.tempDm._id)).to.equal(-1);
-          done();
-        })
+          .then( profile => {
+            expect(profile.dms.indexOf(this.tempDm._id)).to.equal(-1);
+            done();
+          })
         .catch(done);
         });
       });
     });
 
   });
+
 });
