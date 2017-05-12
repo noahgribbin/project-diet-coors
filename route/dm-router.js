@@ -36,7 +36,7 @@ dmRouter.post('/api/dm', bearerAuth, jsonParser, function(req, res, next) {
   .catch(next);
 });
 
-dmRouter.get('api/dm/:id', function(req, res, next) {
+dmRouter.get('/api/dm/:id', function(req, res, next) {
   debug('GET: /api/dm/:id');
   console.log('req.params.id',req.params.id);
   console.log('req.params',req.params);

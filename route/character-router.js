@@ -41,7 +41,7 @@ characterRouter.post('/api/character', bearerAuth, jsonParser, function(req, res
 //
 // });
 
-characterRouter.get('api/character/:id', function(req, res, next) {
+characterRouter.get('/api/character/:id', function(req, res, next) {
   debug('GET: /api/character/:id');
 
   Character.findById(req.params.id)
@@ -49,7 +49,7 @@ characterRouter.get('api/character/:id', function(req, res, next) {
   .catch(next);
 });
 
-characterRouter.get('api/mycharacters/:profileID', function(req, res, next) {
+characterRouter.get('/api/mycharacters/:profileID', function(req, res, next) {
   debug('GET: /api/mycharacters/:profileID');
 
   Profile.findById(req.params.profileID)
