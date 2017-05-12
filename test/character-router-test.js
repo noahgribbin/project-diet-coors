@@ -24,6 +24,8 @@ const exampleCharacter = {
   characterName: 'Kenith'
 };
 
+const invalidID = 'ay2Usn68j9fbYtn5';
+
 describe('Character Routers', () => {
 
   beforeEach( done => {
@@ -73,6 +75,7 @@ describe('Character Routers', () => {
       })
       .catch(done);
     });
+
     describe('with a valid body', () => {
       it('should return a token', done => {
         request.post(`${url}/api/character`)
@@ -81,6 +84,17 @@ describe('Character Routers', () => {
         .end((err, res) => {
           if(err) return done(err);
           expect(res.status).to.equal(200);
+          done();
+        });
+      });
+    });
+
+    describe('without a valid body', () => {
+      it('should return 400 expected body', done => {
+        request.post(`${url}/api/character`)
+        .set({ Authorization: `Bearer ${this.tempToken}` })
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
           done();
         });
       });
@@ -119,6 +133,17 @@ describe('Character Routers', () => {
         });
       });
     });
+
+    describe('with an invalid character id', () => {
+      it('should return a character', done => {
+        request.get(`${url}/api/character/${invalidID}`)
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          done();
+        });
+      });
+    });
+
   });
 
   describe('GET /api/mycharacters/:profileID', () => {
@@ -156,6 +181,26 @@ describe('Character Routers', () => {
       });
     });
 
+    describe('with an invalid profile id', () => {
+      it('should retun 404 not found', done => {
+        request.get(`${url}/api/mycharacters/${invalidID}`)
+        .set({ Authorization: `Bearer ${this.tempToken}`})
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          done();
+        });
+      });
+    });
+
+    describe('without headers', () => {
+      it('should return 400 headers required', done => {
+        request.get(`${url}/api/mycharacters/${this.tempProfile._id.toString()}`)
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          done();
+        });
+      });
+    });
 
   });
 
@@ -191,6 +236,40 @@ describe('Character Routers', () => {
         .end((err, res) => {
           if(err) return done(err);
           expect(res.status).to.equal(200);
+          done();
+        });
+      });
+    });
+
+    describe('with a valid id, and invalid body', () => {
+      it('should return 400 request body expected', done => {
+        request.put(`${url}/api/character/${this.tempCharacter._id.toString()}`)
+        .set({ Authorization: `Bearer ${this.tempToken}`})
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          done();
+        });
+      });
+    });
+
+    describe('with an invalid id and a valid body', () => {
+      it('should return 404 not found', done => {
+        request.put(`${url}/api/characters/${invalidID}`)
+        .set({ Authorization: `Bearer ${this.tempToken}`})
+        .send(updatedCharacter)
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          done();
+        });
+      });
+    });
+
+    describe('without headers', () => {
+      it('should return ', done => {
+        request.put(`${url}/api/character/${this.tempCharacter._id.toString()}`)
+        .send(updatedCharacter)
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
           done();
         });
       });
@@ -236,6 +315,16 @@ describe('Character Routers', () => {
       });
     });
 
-  });
+    describe('with an invalid character id', () => {
+      it('should return 404 not found', done => {
+        request.delete(`${url}/api/character/buh`)
+        .set({ Authorization: `Bearer ${this.tempToken}` })
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          done();
+        });
+      });
+    });
 
+  });
 });

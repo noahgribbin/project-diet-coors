@@ -97,7 +97,7 @@ describe('Dm Routes', () => {
       });
     });
     describe('with no token', () => {
-      it('should return 400 authorization header required', done => {
+      it('should return 401 authorization header required', done => {
         request.post(`${url}/api/dm`)
         .send(exampleDm)
         .end((err, res) => {

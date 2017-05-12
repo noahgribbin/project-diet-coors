@@ -49,7 +49,7 @@ characterRouter.get('/api/character/:id', function(req, res, next) {
   .catch(next);
 });
 
-characterRouter.get('/api/mycharacters/:profileID', function(req, res, next) {
+characterRouter.get('/api/mycharacters/:profileID', bearerAuth, function(req, res, next) {
   debug('GET: /api/mycharacters/:profileID');
 
   Profile.findById(req.params.profileID)
@@ -69,7 +69,7 @@ characterRouter.put('/api/character/:id', bearerAuth, jsonParser, function(req, 
 });
 
 characterRouter.delete('/api/character/:id', bearerAuth, function(req, res, next) {
-  debug('DElETE: /api/character/:id');
+  debug('DELETE: /api/character/:id');
 
   Profile.findOne( {userID: req.user._id} )
   .then( profile => {
@@ -83,9 +83,4 @@ characterRouter.delete('/api/character/:id', bearerAuth, function(req, res, next
     res.status(204).send();
   })
   .catch(next);
-})
-
-
-
-
-;
+});
