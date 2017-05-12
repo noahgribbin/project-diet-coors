@@ -68,23 +68,6 @@ characterRouter.put('/api/character/:id', bearerAuth, jsonParser, function(req, 
   .catch(next);
 });
 
-// characterRouter.delete('/api/character/:id', bearerAuth, function(req, res, next) {
-//   debug('DELETE: /api/character/:id');
-//
-//   Profile.findOne( {userID: req.user._id} )
-//   .then( profile => {
-//     let characterArray = profile.characters;
-//     let chracterIndex = characterArray.indexOf(req.params.id);
-//     characterArray.splice(chracterIndex, 1);
-//     return Profile.findByIdAndUpdate( profile._id, { $set: { characters: characterArray } }, { new: true });
-//   })
-//   .then( () => {
-//     Character.findByIdAndRemove(req.params.id);
-//     res.status(204).send();
-//   })
-//   .catch(next);
-// });
-
 characterRouter.delete('/api/character/:id', bearerAuth, function(req, res, next) {
   debug('DELETE: /api/recipe/:id');
 

@@ -36,7 +36,7 @@ dmRouter.post('/api/dm', bearerAuth, jsonParser, function(req, res, next) {
   .catch(next);
 });
 
-dmRouter.get('/api/dm/:id', function(req, res, next) {
+dmRouter.get('/api/dm/:id', bearerAuth, function(req, res, next) {
   debug('GET: /api/dm/:id');
   console.log('req.params.id',req.params.id);
   console.log('req.params',req.params);
@@ -46,7 +46,7 @@ dmRouter.get('/api/dm/:id', function(req, res, next) {
   .catch(next);
 });
 
-dmRouter.get('/api/mydms/:profileID', function(req, res, next) {
+dmRouter.get('/api/mydms/:profileID', bearerAuth,  function(req, res, next) {
   debug('GET: /api/mydms/:profileID');
 
   Profile.findById(req.params.profileID)
@@ -55,7 +55,7 @@ dmRouter.get('/api/mydms/:profileID', function(req, res, next) {
   .catch(next);
 });
 
-dmRouter.get('/api/alldms', function(req, res, next) {
+dmRouter.get('/api/alldms', bearerAuth, function(req, res, next) {
   debug('GET: /api/alldms');
 
   Dm.find({})
@@ -78,7 +78,7 @@ dmRouter.put('/api/dm/:id', bearerAuth, jsonParser, function(req, res, next) {
 dmRouter.delete('/api/dm/:id', bearerAuth, function(req, res, next) {
   debug('DELETE: /api/dm/:id');
 
-  Profile.findOne( {userID: req.user._id} )
+  Profile.findOne( {dms: req.params.id} )
   .then( profile => {
     let dmArray = profile.dms;
     let dmIndex = dmArray.indexOf(req.params.id);

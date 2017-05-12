@@ -301,7 +301,7 @@ describe('Character Routers', () => {
 
     describe('with a valid character id', () => {
       it('should delete the character and return a 204 status', done => {
-        request.delete(`${url}/api/character/${this.tempCharacter._id.toString()}`)
+        request.delete(`${url}/api/character/${this.tempCharacter._id}`)
         .set({ Authorization: `Bearer ${this.tempToken}` })
         .end((err, res) => {
           expect(res.status).to.equal(204);
@@ -317,7 +317,7 @@ describe('Character Routers', () => {
 
     describe('with an invalid character id', () => {
       it('should return 404 not found', done => {
-        request.delete(`${url}/api/character/a`)
+        request.delete(`${url}/api/character/${invalidID}`)
         .set({ Authorization: `Bearer ${this.tempToken}` })
         .end((err, res) => {
           expect(res.status).to.equal(404);
@@ -325,6 +325,18 @@ describe('Character Routers', () => {
         });
       });
     });
+
+    describe('without auth headers', () => {
+      it('should return 401 auth headers required', done => {
+        request.delete(`${url}/api/character/${this.tempCharacter._id}`)
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          done();
+        });
+      });
+    });
+
+
 
   });
 });

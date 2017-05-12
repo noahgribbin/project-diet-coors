@@ -24,6 +24,9 @@ const exampleDm = {
   campaignName: 'test campaign name'
 };
 
+const invalidID = 'ay2Usn68j9fbYtn5';
+
+
 describe('Dm Routes', () => {
   beforeEach( done => {
     new User(exampleUser)
@@ -135,12 +138,31 @@ describe('Dm Routes', () => {
     describe('with a valid dm id', () => {
       it('should return a dm', done => {
         request.get(`${url}/api/dm/${this.tempDm._id}`)
+        .set({ Authorization: `Bearer ${this.tempToken}` })
         .end((err, res) => {
-          if(err) {
-            console.log('fuck you fuck lololololol');
-            return done(err);
-          }
+          if(err) return done(err);
           expect(res.status).to.equal(200);
+          done();
+        });
+      });
+    });
+
+    describe('without a valid dm id', () => {
+      it('should return 404 not found', done => {
+        request.get(`${url}/api/dm/${invalidID}`)
+        .set({ Authorization: `Bearer ${this.tempToken}` })
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          done();
+        });
+      });
+    });
+
+    describe('without auth headers', () => {
+      it('should return 401 auth headers required', done => {
+        request.get(`${url}/api/dm/${this.tempDm._id}`)
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
           done();
         });
       });
@@ -172,7 +194,7 @@ describe('Dm Routes', () => {
 
     describe('with a valid profile id', () => {
       it('should return a list of dms', done => {
-        request.get(`${url}/api/mydms/${this.tempProfile._id.toString()}`)
+        request.get(`${url}/api/mydms/${this.tempProfile._id}`)
         .set({ Authorization: `Bearer ${this.tempToken}` })
         .end((err, res) => {
           if(err) return done(err);
@@ -184,12 +206,22 @@ describe('Dm Routes', () => {
 
     describe('without a valid profile id', () => {
       it('should return a 404 error', done => {
-        request.get(`${url}/api/mydms/asd98aq123asdcxc`)
+        request.get(`${url}/api/mydms/${invalidID}`)
         .set({ Authorization: `Bearer ${this.tempToken}` })
         .end((err, res) => {
           expect(res.status).to.equal(404);
           done();
         });
+      });
+    });
+  });
+
+  describe('without auth headers', () => {
+    it('should return 401 auth headers required', done => {
+      request.get(`${url}/api/mydms/${this.tempProfile._id}`)
+      .end((err, res) => {
+        expect(res.status).to.equal(401);
+        done();
       });
     });
   });
@@ -223,11 +255,22 @@ describe('Dm Routes', () => {
         .end((err, res) => {
           if(err) return done(err);
           expect(res.status).to.equal(200);
-          console.log(res.body);
           done();
         });
       });
     });
+
+    describe('without auth headers', () => {
+      it('should return 401 headers required', done => {
+        request.get(`${url}/api/alldms`)
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          done();
+        });
+      });
+    });
+
+
   });
 
   describe('PUT /api/dm/:id', () => {
@@ -269,7 +312,7 @@ describe('Dm Routes', () => {
 
     describe('without a vaild id', () => {
       it('should return a 404 error', done => {
-        request.put(`${url}/api/dm/123casdf`)
+        request.put(`${url}/api/dm/${invalidID}`)
         .set({ Authorization: `Bearer ${this.tempToken}` })
         .send(updatedDm)
         .end((err, res) => {
@@ -281,7 +324,7 @@ describe('Dm Routes', () => {
 
     describe('without a valid body', () => {
       it('should return a 400 error', done => {
-        request.put(`${url}/api/dm/${this.tempDm._id.toString()}`)
+        request.put(`${url}/api/dm/${this.tempDm._id}`)
         .set({ Authorization: `Bearer ${this.tempToken}` })
         .end((err, res) => {
           expect(res.status).to.equal(400);
@@ -289,6 +332,17 @@ describe('Dm Routes', () => {
         });
       });
     });
+
+    describe('without auth headers', () => {
+      it('should return 401 auth header required', done => {
+        request.put(`${url}/api/dm/${this.tempDm._id}`)
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          done();
+        });
+      });
+    });
+
   });
 
   describe('DELETE /api/dm/:id', () => {
@@ -314,7 +368,7 @@ describe('Dm Routes', () => {
 
     describe('with a valid dm id', () => {
       it('should return a 204 status', done => {
-        request.delete(`${url}/api/dm/${this.tempDm._id.toString()}`)
+        request.delete(`${url}/api/dm/${this.tempDm._id}`)
         .set({ Authorization: `Bearer ${this.tempToken}` })
         .end((err, res) => {
           expect(res.status).to.equal(204);
@@ -328,6 +382,26 @@ describe('Dm Routes', () => {
       });
     });
 
-  });
+    describe('with an invalid dm id', () => {
+      it('should return 404 not found', done => {
+        request.delete(`${url}/api/dm/${invalidID}`)
+        .set({ Authorization: `Bearer ${this.tempToken}` })
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          done();
+        });
+      });
+    });
 
+    describe('without auth headers', () => {
+      it('should return 401 not found', done => {
+        request.delete(`${url}/api/dm/${this.tempDm._id}`)
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          done();
+        });
+      });
+    });
+
+  });
 });
