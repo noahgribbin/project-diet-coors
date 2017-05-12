@@ -317,7 +317,7 @@ describe('Character Routers', () => {
 
     describe('with an invalid character id', () => {
       it('should return 404 not found', done => {
-        request.delete(`${url}/api/character/buh`)
+        request.delete(`${url}/api/character/a`)
         .set({ Authorization: `Bearer ${this.tempToken}` })
         .end((err, res) => {
           expect(res.status).to.equal(404);
