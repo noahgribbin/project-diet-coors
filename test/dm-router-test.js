@@ -2,9 +2,11 @@
 
 const expect = require('chai').expect;
 const request = require('superagent');
+
+const Character = require('../model/character.js');
+const Dm = require('../model/dm.js');
 const Profile = require('../model/profile.js');
 const User = require('../model/user.js');
-const Dm = require('../model/dm.js');
 
 require('../server.js');
 
@@ -22,6 +24,13 @@ const exampleProfile = {
 
 const exampleDm = {
   campaignName: 'test campaign name'
+};
+
+const exampleCharacter = {
+  characterName: 'Kenith'
+};
+const exampleCharacter2 = {
+  characterName: 'Bones'
 };
 
 const invalidID = 'ay2Usn68j9fbYtn5';
@@ -118,9 +127,6 @@ describe('Dm Routes', () => {
       new Dm(exampleDm).save()
       .then( dm => {
         this.tempDm = dm;
-        console.log('tmepDM: ', this.tempDm);
-        console.log('DM: ', dm);
-        console.log('tempDM ID: ', this.tempDm._id);
         done();
       })
       .catch(done);
@@ -170,7 +176,80 @@ describe('Dm Routes', () => {
 
   });
 
-  describe('GET api/mydms/:profileID', () => {
+  describe('GET: /api/dm/:id/characters', () => {
+
+    beforeEach( done => {
+      exampleCharacter.profileID = this.tempProfile._id;
+      new Character(exampleCharacter).save()
+      .then( character => {
+        this.tempCharacter = character;
+        done();
+      })
+      .catch(done);
+    });
+
+    beforeEach( done => {
+      exampleCharacter2.profileID = this.tempProfile._id;
+      new Character(exampleCharacter2).save()
+      .then( character => {
+        this.tempCharacter2 = character;
+        done();
+      })
+      .catch(done);
+    });
+
+    beforeEach( done => {
+      exampleDm.campaignMembers = [this.tempCharacter._id];
+      exampleDm.campaignMembers.push(this.tempCharacter2._id);
+      exampleDm.profileID = this.tempProfile._id;
+      new Dm(exampleDm).save()
+      .then( dm => {
+        this.tempDm = dm;
+        done();
+      })
+      .catch(done);
+    });
+
+    afterEach( done => {
+      Dm.remove({})
+      .then( () => {
+        delete exampleDm.profileID;
+        done();
+      })
+      .catch(done);
+    });
+
+    afterEach( done => {
+      Character.remove({})
+      .then( () => {
+        delete exampleCharacter.profileID;
+        delete exampleCharacter2.profileID;
+        done();
+      })
+      .catch(done);
+    });
+
+    describe('with a valid dm id', () => {
+      it('should return the characters in the campaignMembers array', done => {
+        request.get(`${url}/api/dm/${this.tempDm._id}/characters`)
+        .set({ Authorization: `Bearer ${this.tempToken}`})
+        .end((err, res) => {
+          if(err) return done(err);
+          expect(res.status).to.equal(200);
+          expect(res.body[0].characterName).to.equal(this.tempCharacter.characterName);
+          expect(res.body[1].characterName).to.equal(this.tempCharacter2.characterName);
+          expect(res.body[0]._id).to.equal(this.tempCharacter._id.toString());
+          expect(res.body[1]._id).to.equal(this.tempCharacter2._id.toString());
+          expect(res.body[0].profileID).to.equal(this.tempCharacter.profileID.toString());
+          expect(res.body[1].profileID).to.equal(this.tempCharacter2.profileID.toString());
+          done();
+        });
+      });
+    });
+
+  });
+
+  describe('GET /api/mydms/:profileID', () => {
     beforeEach( done => {
       exampleDm.profileID = this.tempDm._id;
       new Dm(exampleDm).save()
@@ -345,6 +424,70 @@ describe('Dm Routes', () => {
 
   });
 
+  describe('PUT: /api/dm/:id/:characterID', () => {
+    beforeEach( done => {
+      exampleDm.profileID = this.tempProfile._id;
+      new Dm(exampleDm).save()
+      .then( dm => {
+        this.tempDm = dm;
+        done();
+      })
+      .catch(done);
+    });
+
+    beforeEach( done => {
+      exampleCharacter.profileID = this.tempProfile._id;
+      new Character(exampleCharacter).save()
+      .then( character => {
+        this.tempCharacter = character;
+        done();
+      })
+      .catch(done);
+    });
+
+    beforeEach( done => {
+      this.dmCharPackage = [];
+      this.dmCharPackage.push(this.tempCharacter);
+      this.dmCharPackage.push(this.tempDm);
+      done();
+    });
+
+    afterEach( done => {
+      Dm.remove({})
+      .then( () => {
+        delete exampleDm.profileID;
+        done();
+      })
+      .catch(done);
+    });
+
+    afterEach( done => {
+      Character.remove({})
+      .then( () => {
+        delete exampleCharacter.profileID;
+        done();
+      })
+      .catch(done);
+    });
+
+    describe('with valid dm and character ids', () => {
+      it('should return an updated dm with a filled campaign member', done => {
+        request.put(`${url}/api/dm/${this.tempDm._id}/${this.tempCharacter._id}`)
+        .set({ Authorization: `Bearer ${this.tempToken}` })
+        .send(this.dmCharPackage)
+        .end((err, res) => {
+          if(err) return done(err);
+          expect(res.status).to.equal(200);
+          expect(res.body.campaignMembers).to.include(this.tempCharacter._id.toString());
+          done();
+        });
+      });
+    });
+
+  });
+
+
+
   describe('DELETE /api/dm/:id', () => {
     beforeEach( done => {
       exampleDm.profileID = this.tempProfile._id;
@@ -404,4 +547,5 @@ describe('Dm Routes', () => {
     });
 
   });
+
 });

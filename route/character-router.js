@@ -7,7 +7,6 @@ const Router = require('express').Router;
 
 const bearerAuth = require('../lib/bearer-auth-middleware.js');
 const Character = require('../model/character.js');
-// const Dm = require('../model/Dm');
 const Profile = require('../model/profile.js');
 
 const characterRouter = module.exports = Router();
@@ -37,10 +36,6 @@ characterRouter.post('/api/character', bearerAuth, jsonParser, function(req, res
   .catch(next);
 });
 
-// characterRouter.post('/api/character/:dmID', bearerAuth, jsonParser, function(req, res, next) {
-//
-// });
-
 characterRouter.get('/api/character/:id', function(req, res, next) {
   debug('GET: /api/character/:id');
 
@@ -67,6 +62,7 @@ characterRouter.put('/api/character/:id', bearerAuth, jsonParser, function(req, 
   })
   .catch(next);
 });
+
 
 characterRouter.delete('/api/character/:id', bearerAuth, function(req, res, next) {
   debug('DELETE: /api/recipe/:id');

@@ -6,6 +6,8 @@ const jsonParser = require('body-parser').json();
 const Router = require('express').Router;
 
 const bearerAuth = require('../lib/bearer-auth-middleware.js');
+
+const Character = require('../model/character.js');
 const Dm = require('../model/dm.js');
 const Profile = require('../model/profile.js');
 
@@ -38,12 +40,25 @@ dmRouter.post('/api/dm', bearerAuth, jsonParser, function(req, res, next) {
 
 dmRouter.get('/api/dm/:id', bearerAuth, function(req, res, next) {
   debug('GET: /api/dm/:id');
-  console.log('req.params.id',req.params.id);
-  console.log('req.params',req.params);
   Dm.findById(req.params.id)
-
   .then( dm => res.json(dm))
   .catch(next);
+});
+
+dmRouter.get('/api/dm/:id/characters', bearerAuth, function(req, res, next) {
+  debug('GET: /api/dm/:id/characters');
+
+  Dm.findById(req.params.id)
+  .then( dm => {
+    Character.find({ _id: { $in: dm.campaignMembers}}).lean()
+    .then( characters => {
+      console.log('characters'+'\n',characters);
+      res.json(characters);
+    })
+    .catch(next);
+  })
+  .catch(next);
+
 });
 
 dmRouter.get('/api/mydms/:profileID', bearerAuth,  function(req, res, next) {
@@ -73,6 +88,21 @@ dmRouter.put('/api/dm/:id', bearerAuth, jsonParser, function(req, res, next) {
     res.json(dm);
   })
   .catch(next);
+});
+
+dmRouter.put('/api/dm/:id/:characterID', bearerAuth, jsonParser, function(req, res, next) {
+  debug('POST: /api/dm/:id/:characterID');
+
+  if(req._body !== true) return next(createError(400, 'nothing to update'));
+
+  Dm.findById(req.body[1]._id)
+  .then( dm => {
+    dm.campaignMembers.push(req.body[0]._id);
+    res.json(dm);
+  })
+  .catch(next);
+
+
 });
 
 dmRouter.delete('/api/dm/:id', bearerAuth, function(req, res, next) {
