@@ -95,6 +95,12 @@ dmRouter.put('/api/dm/:id/:characterID', bearerAuth, jsonParser, function(req, r
 
   if(req._body !== true) return next(createError(400, 'nothing to update'));
 
+  Character.findById(req.body[0])
+  .then( character => {
+    character.dmID = req.body[1]._id;
+    console.log(character);
+  });
+
   Dm.findById(req.body[1]._id)
   .then( dm => {
     dm.campaignMembers.push(req.body[0]._id);

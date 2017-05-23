@@ -6,6 +6,7 @@ const jsonParser = require('body-parser').json();
 const Router = require('express').Router;
 
 const bearerAuth = require('../lib/bearer-auth-middleware.js');
+const Dm = require('../model/dm.js');
 const Character = require('../model/character.js');
 const Profile = require('../model/profile.js');
 
@@ -50,6 +51,27 @@ characterRouter.get('/api/mycharacters/:profileID', bearerAuth, function(req, re
   Profile.findById(req.params.profileID)
   .populate('characters')
   .then( profile => res.json(profile))
+  .catch(next);
+});
+
+characterRouter.get('/api/partymembers/:id', bearerAuth, function(req, res, next) {
+  debug('GET: /api/partymembers/:id');
+
+  Character.findById(req.params.id)
+  .then( character => {
+    console.log('character'+'\n'+'\n', character);
+    Dm.findById(character.dmID)
+    .then( dm => {
+      console.log('dm'+'\n'+'\n', dm);
+      Character.find({ _id: { $in: dm.campaignMembers}}).lean()
+      .then( characters => {
+        console.log('characters'+'\n'+'\n',characters);
+        res.json(characters);
+      })
+      .catch(next);
+    })
+    .catch(next);
+  })
   .catch(next);
 });
 
