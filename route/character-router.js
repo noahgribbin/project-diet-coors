@@ -103,3 +103,4 @@ characterRouter.delete('/api/character/:id', bearerAuth, function(req, res, next
   })
   .catch(next);
 });
+//
