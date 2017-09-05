@@ -8,14 +8,14 @@ const jsonParser = require('body-parser').json();
 const bearerAuth = require('../lib/bearer-auth-middleware.js');
 const Profile = require('../model/profile.js');
 const User = require('../model/user.js');
-// const Character = require('../lib/model/character.js');
-// const Dm = require('../lib/model/dm.js');
+const Dm = require('../model/dm.js');
+const Character = require('../model/character.js');
 
 const profileRouter = module.exports = Router();
 
 profileRouter.post('/api/profile', bearerAuth, jsonParser, function(req, res, next) {
   debug('POST: /api/profile');
-  console.log(req.body);
+  console.log('route req.body', req.body);
   if (!req._body) return next(createError(400, 'request body expected'));
   req.body.userID = req.user._id;
   new Profile(req.body).save()
@@ -23,7 +23,7 @@ profileRouter.post('/api/profile', bearerAuth, jsonParser, function(req, res, ne
   .catch(next);
 });
 
-profileRouter.get('/api/profile/:id', function(req, res, next) {
+profileRouter.get('/api/profile/:id', bearerAuth, jsonParser, function(req, res, next) {
   debug('GET: /api/profile');
 
   Profile.findOne({ userID: req.params.id })
@@ -34,20 +34,33 @@ profileRouter.get('/api/profile/:id', function(req, res, next) {
 profileRouter.put('/api/profile/:id', bearerAuth, jsonParser, function(req, res, next) {
   debug('PUT: /api/profile/:id');
 
-  if(req._body !== true) return next(createError(400, 'nothing to update'));
+  if(!req._body) return next(createError(400, 'nothing to update'));
 
   Profile.findByIdAndUpdate(req.params.id, req.body, { new:true } )
   .then( profile => res.json(profile))
   .catch(next);
 });
-
+``
 profileRouter.delete('/api/profile/:id', bearerAuth, function(req, res, next) {
   debug('DELETE: /api/profile/:id');
 
-  Profile.remove({ userID:req.user._id })
-  .then( () => User.remove({ userID:req.user.username }))
-  //  add later, check
-  // .then( () => Character.remove({ characterID:req.params.id }));
-  // .then( () => Dm.remove({ dmID:req.params.id }));
+  Profile.findById( req.params.id )
+  .then( profile => {
+    console.log('profile',profile);
+    User.findById(profile.userID)
+    .then( user => {
+      user.remove()
+    })
+  })
+  .then( () => Profile.findById( req.params.id ))
+  .then( profile => {
+    console.log('profile',profile);
+    profile.remove()
+  })
+  .then( () => Character.remove({ profileID:req.params.id }))
+  .then( () => Dm.remove({ profileID: req.params.id }))
+  .then( () => {
+    res.status(204).send();
+  })
   .catch(next);
 });

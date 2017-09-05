@@ -4,9 +4,9 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const characterSchema = Schema({
-  profileId: { type: Schema.Types.ObjectId, required: true, unique: true },
-  dmId: { type: Schema.Types.ObjectId },
-  characterName: { type: String, unique: true },
+  profileID: { type: Schema.Types.ObjectId, required: true, unique: false },
+  dmID: { type: Schema.Types.ObjectId },
+  characterName: { type: String, unique: false },
   characterPicURI: {type: String }
 });
 

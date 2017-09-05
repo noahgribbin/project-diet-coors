@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose');
 const createError = require('http-errors');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const Promise = require('bluebird');
 const debug = require('debug')('dungeonManager:user');
@@ -12,7 +12,6 @@ const Schema = mongoose.Schema;
 
 const userSchema = Schema({
   username : {type: String, required: true, unique: true},
-  email: {type: String, required: true, unique: true},
   password: {type: String, required: true},
   findHash: {type: String, unique: true }
 });
@@ -66,7 +65,6 @@ userSchema.methods.generateToken = function() {
   debug('generateToken');
 
   return new Promise((resolve, reject) => {
-    // console.log('||||||||||||||', this);
     this.generateFindHash()
     .then( findHash => {
       resolve( jwt.sign( {token: findHash}, process.env.APP_SECRET));
