@@ -13,15 +13,26 @@ const authRouter = module.exports = Router();
 authRouter.post('/api/signup', jsonParser, function(req, res, next) {
   debug('POST /api/signup');
 
+  if (!req._body) return next(createError(400, 'request body expected'));
+
+  let response = {};
   let password = req.body.password;
   delete req.body.password;
-
   let user = new User(req.body);
   user.generatePasswordHash(password)
   .then( user => user.save())
-  .then( user => user.generateToken())
-  .then( token => res.send(token))
-  .catch( err => next(createError(400, err.message)));
+  .then( user => {
+    console.log(user._id);
+    response.user = user;
+    return user.generateToken()
+   })
+  .then( token => {
+    response.token = token;
+    console.log('response', response);
+    res.send(response)
+  })
+
+  .catch(next);
 });
 
 authRouter.get('/api/signin', basicAuth, function(req, res, next) {
@@ -31,6 +42,7 @@ authRouter.get('/api/signin', basicAuth, function(req, res, next) {
   let response = {};
   User.findOne({ username: req.auth.username})
   .then( user => {
+    console.log(user);
     return user.comparePasswordHash(req.auth.password);
   })
   .then( user => {

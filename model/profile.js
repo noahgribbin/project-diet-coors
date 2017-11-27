@@ -4,10 +4,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const profileSchema = Schema({
-  userID: { type: Schema.Types.ObjectId, required: true, unique: true },
-  name: { type: String, unique: true },
-  characters: [{ type: Schema.Types.ObjectId, unique: true, ref: 'character'}],
-  dms: [{ type: Schema.Types.ObjectId, unique: true, ref: 'dm'}]
+  userID: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+  name: { type: String, unique: false },
+  characters: [{ type: Schema.Types.ObjectId, unique: false, ref: 'Character'}],
+  dms: [{ type: Schema.Types.ObjectId, unique: false, ref: 'Dm'}]
 });
 
-module.exports = mongoose.model('profile', profileSchema);
+module.exports = mongoose.model('Profile', profileSchema);
