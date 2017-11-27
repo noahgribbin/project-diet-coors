@@ -22,12 +22,13 @@ authRouter.post('/api/signup', jsonParser, function(req, res, next) {
   user.generatePasswordHash(password)
   .then( user => user.save())
   .then( user => {
-    console.log('here');
+    console.log(user._id);
     response.user = user;
     return user.generateToken()
    })
   .then( token => {
     response.token = token;
+    console.log('response', response);
     res.send(response)
   })
 
@@ -41,6 +42,7 @@ authRouter.get('/api/signin', basicAuth, function(req, res, next) {
   let response = {};
   User.findOne({ username: req.auth.username})
   .then( user => {
+    console.log(user);
     return user.comparePasswordHash(req.auth.password);
   })
   .then( user => {

@@ -15,19 +15,45 @@ const profileRouter = module.exports = Router();
 
 profileRouter.post('/api/profile', bearerAuth, jsonParser, function(req, res, next) {
   debug('POST: /api/profile');
-  console.log('route req.body', req.body);
   if (!req._body) return next(createError(400, 'request body expected'));
   req.body.userID = req.user._id;
+  console.log('user id',req.user._id);
   new Profile(req.body).save()
-  .then( profile => res.json(profile))
+  .then( profile => {
+    console.log('profile_id',profile._id);
+    console.log('profile user id',profile.userID);
+    User.findByIdAndUpdate(profile.userID, {$set: {profileID: profile._id}}, {new: true})
+    .then( user => {
+      console.log(user);
+    })
+    res.json(profile)
+  })
   .catch(next);
 });
 
 profileRouter.get('/api/profile/:id', bearerAuth, jsonParser, function(req, res, next) {
   debug('GET: /api/profile');
 
-  Profile.findOne({ userID: req.params.id })
-  .then( profile => res.json(profile))
+  Profile.findById(req.params.id)
+  .then( profile => {
+    console.log(profile._id);
+    console.log(profile.userID);
+    res.json(profile)
+  })
+  .catch(next);
+});
+profileRouter.get('/api/profile/user/:id', bearerAuth, jsonParser, function(req, res, next) {
+  debug('GET: /api/profile/user');
+  User.findById(req.params.id)
+  .then( user => {
+    console.log(user);
+    Profile.findById(user.profileID)
+    .then( profile => {
+      console.log(profile._id);
+      console.log(profile.userID);
+      res.json(profile)
+    })
+  })
   .catch(next);
 });
 
@@ -46,7 +72,6 @@ profileRouter.delete('/api/profile/:id', bearerAuth, function(req, res, next) {
 
   Profile.findById( req.params.id )
   .then( profile => {
-    console.log('profile',profile);
     User.findById(profile.userID)
     .then( user => {
       user.remove()
@@ -54,7 +79,6 @@ profileRouter.delete('/api/profile/:id', bearerAuth, function(req, res, next) {
   })
   .then( () => Profile.findById( req.params.id ))
   .then( profile => {
-    console.log('profile',profile);
     profile.remove()
   })
   .then( () => Character.remove({ profileID:req.params.id }))

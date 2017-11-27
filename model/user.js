@@ -13,7 +13,8 @@ const Schema = mongoose.Schema;
 const userSchema = Schema({
   username : {type: String, required: true, unique: true},
   password: {type: String, required: true},
-  findHash: {type: String, unique: true }
+  findHash: {type: String, unique: true },
+  profileID: {type: String}
 });
 
 userSchema.methods.generatePasswordHash = function(password) {
@@ -73,4 +74,4 @@ userSchema.methods.generateToken = function() {
   });
 };
 
-module.exports = mongoose.model('user', userSchema);
+module.exports = mongoose.model('User', userSchema);
