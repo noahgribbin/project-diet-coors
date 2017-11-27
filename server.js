@@ -12,7 +12,6 @@ const Promise = require('bluebird');
 const bearerAuth = require('./lib/bearer-auth-middleware.js');
 const jsonParser = require('body-parser').json();
 
-
 const Profile = require('./model/profile.js');
 const Dm = require('./model/dm.js');
 
