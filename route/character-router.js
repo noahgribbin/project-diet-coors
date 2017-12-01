@@ -163,6 +163,7 @@ characterRouter.post('/api/character/:id/spell', bearerAuth, jsonParser, functio
 
 characterRouter.get('/api/character/:id', bearerAuth, jsonParser, function(req,res,next) {
   debug('GET: /api/character/:id')
+  console.log("req.params",req.params);
   Character.findById(req.params.id)
   .populate('dmID')
   .then( character => {
