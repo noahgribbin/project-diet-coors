@@ -24,7 +24,6 @@ describe('Auth Routes', () => {
     .catch(done);
   });
 
-  //
   describe('POST /api/signup', () => {
     describe('with a valid body', () => {
       it('should return a token', done => {
@@ -38,8 +37,6 @@ describe('Auth Routes', () => {
         });
       });
     });
-
-
 
     describe('with an invalid body', () => {
       it('should return a 400 status code', done => {
@@ -64,12 +61,7 @@ describe('Auth Routes', () => {
         });
       });
     });
-//
-//
-//
-//
   });
-
 
   describe('GET /api/signin', () => {
     beforeEach( done => {
