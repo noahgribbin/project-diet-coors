@@ -46,48 +46,85 @@ characterRouter.post('/api/character', bearerAuth, jsonParser, function(req, res
 
 characterRouter.post('/api/character/:dmcode', bearerAuth, jsonParser, function(req, res, next) {
   debug('POST: /api/character/:dmcode')
+  // What need to happen here
+  var validCode = true;
+  // TODO if code is invalid send appropriate error
+    Dm.findOne({campaignCode: req.params.dmcode}, function(err, found){
+      if(err){
+        console.log(err);
+      }
+      if(found){
+        console.log("FOUND");
+        console.log(found);
+      }else {
+        console.log('NOT FOUND');
+        validCode = false;
+        res.status(404).end()
+      }
+    })
+
+
+  // TODO if character is trying to join the same party, stop the function and send appropriate error
   Character.findById(req.body.id)
   .populate('dmID')
   .then(character => {
-    console.log('character',character);
-    if(character.dmID){
-      Dm.findById(character.dmID)
-      .then(dm => {
-        console.log('old dm', dm);
-        let memberArray = dm.campaignMembers
-        let idIndex= memberArray.indexOf(req.body.id)
-        dm.campaignMembers.splice(idIndex, 1);
-        return Dm.findByIdAndUpdate(dm._id, {$set: {campaignMembers: memberArray}}, {new: true});
+    if(character.dmID.campaignCode === req.params.dmcode){
+      res.status(400).send('already joined')
+    }
+  })
+  .catch(next)
+
+  // TODO if character was a member of another campaign, remove them from the old campaign
+  Dm.findOne({campaignCode: req.params.dmcode}, function(err, found) {
+    if(found){
+      Character.findById(req.body.id)
+      .populate('dmID')
+      .then(character => {
+        if(character.dmID){
+          Dm.findById(character.dmID)
+          .then(dm => {
+            console.log('old dm', dm);
+            let memberArray = dm.campaignMembers
+            let idIndex= memberArray.indexOf(req.body.id)
+            dm.campaignMembers.splice(idIndex, 1);
+            Dm.findByIdAndUpdate(dm._id, {$set: {campaignMembers: memberArray}}, {new: true})
+            .then(dm => {
+              console.log('afterUpdateDm',dm);
+            })
+            .catch(next)
+          })
+          .catch(next)
+        }
       })
+      .catch(next)
+
+    }else {
+
     }
   })
-  console.log('req.params', req.params);
-  var dup = false;
-  Dm.findOne({campaignCode: req.params.dmcode})
-  .then( dm => {
-    for(var i=0;i<dm.campaignMembers.length;i++) {
-      var member = dm.campaignMembers[i]
-      var againstId = req.body.id
-      if (member == againstId) {
-        console.log(member);
-        console.log(againstId);
-        dup = true;
-      }
+  //  DONE: Add character to campaign member array
+  Dm.findOne({campaignCode: req.params.dmcode}, function(err, found) {
+    if(found){
+      Dm.findOne({campaignCode: req.params.dmcode})
+      .then( dm => {
+        dm.campaignMembers.push(req.body.id)
+        dm.save();
+        Character.findById(req.body.id)
+        .then(character => {
+          character.dmID = dm._id
+          character.save()
+          console.log(character);
+        })
+        .then(() => {
+          console.log(dm);
+          res.json(dm)
+        })
+        .catch(next)
+      })
+      .catch(next)
+    }else {
+      console.log('NOT FOUND!!!!!!');
     }
-  })
-  Dm.findOne({campaignCode: req.params.dmcode})
-  .then( dm => {
-    console.log('dup',dup);
-    if(dup) return next(createError(400,'already joined'))
-    dm.campaignMembers.push(req.body.id)
-    dm.save();
-    Character.findById(req.body.id)
-    .then(character => {
-      character.dmID = dm._id
-      character.save()
-      console.log(character);
-    })
-      res.json(dm)
   })
 
 })
@@ -242,6 +279,8 @@ characterRouter.put('/api/character/:id', bearerAuth, jsonParser, function(req, 
   if (!req._body) return next(createError(400, 'request body expected'))
   Character.findByIdAndUpdate(req.params.id,{
     "$set": { characterName: req.body.characterName,
+            race: req.body.race,
+            class: req.body.class,
             lv: req.body.lv,
             ac: req.body.ac,
             hp: req.body.hp,
