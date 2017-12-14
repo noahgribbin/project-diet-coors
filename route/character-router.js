@@ -46,9 +46,7 @@ characterRouter.post('/api/character', bearerAuth, jsonParser, function(req, res
 
 characterRouter.post('/api/character/:dmcode', bearerAuth, jsonParser, function(req, res, next) {
   debug('POST: /api/character/:dmcode')
-  // What need to happen here
   var validCode = true;
-  // TODO if code is invalid send appropriate error
     Dm.findOne({campaignCode: req.params.dmcode}, function(err, found){
       if(err){
         console.log(err);
@@ -64,17 +62,17 @@ characterRouter.post('/api/character/:dmcode', bearerAuth, jsonParser, function(
     })
 
 
-  // TODO if character is trying to join the same party, stop the function and send appropriate error
   Character.findById(req.body.id)
   .populate('dmID')
   .then(character => {
-    if(character.dmID.campaignCode === req.params.dmcode){
-      res.status(400).send('already joined')
+    if(character.dmID){
+      if(character.dmID.campaignCode === req.params.dmcode){
+        res.status(400).send('already joined')
+      }  
     }
   })
   .catch(next)
 
-  // TODO if character was a member of another campaign, remove them from the old campaign
   Dm.findOne({campaignCode: req.params.dmcode}, function(err, found) {
     if(found){
       Character.findById(req.body.id)
@@ -105,23 +103,24 @@ characterRouter.post('/api/character/:dmcode', bearerAuth, jsonParser, function(
   //  DONE: Add character to campaign member array
   Dm.findOne({campaignCode: req.params.dmcode}, function(err, found) {
     if(found){
-      Dm.findOne({campaignCode: req.params.dmcode})
-      .then( dm => {
-        dm.campaignMembers.push(req.body.id)
-        dm.save();
+      console.log(found);
+      // Dm.findOne({campaignCode: req.params.dmcode})
+      // .then( dm => {
+        // console.log(dm);
+        found.campaignMembers.push(req.body.id)
+        found.save();
         Character.findById(req.body.id)
         .then(character => {
-          character.dmID = dm._id
+          character.dmID = found._id
           character.save()
           console.log(character);
         })
         .then(() => {
-          console.log(dm);
-          res.json(dm)
+          console.log(found);
+          res.json(found)
         })
         .catch(next)
-      })
-      .catch(next)
+
     }else {
       console.log('NOT FOUND!!!!!!');
     }
